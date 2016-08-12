@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">chewsit</string>
+    <string name="cuisine_type">CUISINE_TYPE</string>
+    <string name="no_food">NO_FOOD</string>
+    <string name="yes_food">YES_FOOD</string>
+    <string name="getting">Let\'s get</string>
+    <string name="from">from</string>
+    <string name="restaurant_name">RESTAURANT_NAME</string>
+    <string name="map_it">MAP IT</string>
+    <string name="pick_again">PICK AGAIN</string>
+    <string name="twitter">Twitter</string>
+    <string name="facebook">Facebook</string>
+    <string name="lyft">Lyft</string>
+    <string name="uber">Uber</string>
+    <string name="chewsit">chewsit</string>
+</resources>

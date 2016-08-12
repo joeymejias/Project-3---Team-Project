@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.joeymejias.chewsit.RestaurantResult">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        android:id="@+id/restaurant_info">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/getting"
+            android:textSize="24sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cuisine_type"
+            android:textSize="34sp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/from"
+            android:textSize="24sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/restaurant_name"
+            android:textSize="34sp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:id="@+id/map_or_pick_again"
+        android:layout_below="@id/restaurant_info">
+
+        <Button
+            android:layout_width="288dp"
+            android:layout_height="72dp"
+            android:text="@string/map_it"
+            />
+
+        <Button
+            android:layout_width="288dp"
+            android:layout_height="72dp"
+            android:text="@string/pick_again"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/social_share"
+        android:layout_below="@id/map_or_pick_again">
+
+        <Button
+            android:layout_width="144dp"
+            android:layout_height="72dp"
+            android:text="@string/twitter"
+            />
+
+        <Button
+            android:layout_width="144dp"
+            android:layout_height="72dp"
+            android:text="@string/facebook"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/get_a_ride"
+        android:layout_below="@id/social_share">
+
+        <Button
+            android:layout_width="144dp"
+            android:layout_height="72dp"
+            android:text="@string/lyft"
+            />
+
+        <Button
+            android:layout_width="144dp"
+            android:layout_height="72dp"
+            android:text="@string/uber"/>
+    </LinearLayout>
+
+
+</RelativeLayout>
