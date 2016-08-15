@@ -19,7 +19,7 @@ import com.yelp.clientlib.entities.options.CoordinateOptions;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements CardRecyclerAdapter.ItemSelectListener {
+public class MainActivity extends AppCompatActivity implements CardRecyclerAdapter.ItemSelectListener{
 
     private static final String TAG = "MainActivity";
     public static final String SELECTED_POSITION = "selected_position";
@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements CardRecyclerAdapt
                 .getBoolean(OnBoardActivity.SEEN_ON_BOARD, false)) {
             startActivity(new Intent(this, OnBoardActivity.class));
         }
+        startActivity(new Intent(this, OnBoardActivity.class));
+
         setContentView(R.layout.activity_main);
 
         // Get permission for fine location
