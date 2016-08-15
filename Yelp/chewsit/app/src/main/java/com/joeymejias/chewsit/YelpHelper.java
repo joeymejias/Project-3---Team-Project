@@ -32,13 +32,11 @@ public class YelpHelper {
     private YelpAPIFactory apiFactory;
     private YelpAPI yelpAPI;
     private ArrayList<Business> businesses;
-    private ArrayList<Category> businessCategories;
 
     private YelpHelper() {
         apiFactory = new YelpAPIFactory(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET);
         yelpAPI = apiFactory.createAPI();
         businesses = new ArrayList<>();
-        businessCategories = new ArrayList<>();
     }
 
     public static YelpHelper getInstance() {
@@ -48,31 +46,25 @@ public class YelpHelper {
         return sInstance;
     }
 
-    public ArrayList<Business> businessSearch (CoordinateOptions coordinate, double radius) {
+    public ArrayList<Business> businessSearch (CoordinateOptions coordinate, double radius, int offset) {
 
         Map<String, String> params = new HashMap<>();
 
         params.put("category_filter", "restaurants");
-        params.put("limit", "20");
-        params.put("offset", "20");
+        params.put("offset", Integer.toString(offset));
         params.put("radius_filter", Double.toString(radius * 1600));
-        params.put("sort", "2");
+        params.put("sort", "1");
         params.put("lang", "en");
 
         Call<SearchResponse> call = yelpAPI.search(coordinate, params);
 
         try {
             Response<SearchResponse> response = call.execute();
-            businesses = response.body().businesses();
-            businessCategories.clear();
-            for (Business business : businesses) {
-                for (Category category : business.categories()) {
-                    if (!businessCategories.contains(category)) {
-                        businessCategories.add(category);
-                    }
-                }
+            for(Business business : response.body().businesses()) {
+                businesses.add(business);
             }
             return businesses;
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,10 +75,4 @@ public class YelpHelper {
     public ArrayList<Business> getBusinesses() {
         return businesses;
     }
-
-    public ArrayList<Category> getBusinessCategories() {
-        return businessCategories;
-    }
-
-
 }

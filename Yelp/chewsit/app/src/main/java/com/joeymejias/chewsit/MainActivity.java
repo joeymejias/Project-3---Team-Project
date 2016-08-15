@@ -19,44 +19,36 @@ import com.yelp.clientlib.entities.options.CoordinateOptions;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements CardRecyclerAdapter.ItemSelectListener{
+public class MainActivity extends AppCompatActivity
+        implements CardRecyclerAdapter.ItemSelectListener, CardRecyclerAdapter.ItemDismissListener {
 
     private static final String TAG = "MainActivity";
     public static final String SELECTED_POSITION = "selected_position";
 
-    RecyclerView mCategoryRecycler;
+    RecyclerView mCardRecycler;
     CardRecyclerAdapter mAdapter;
+    LinearLayoutManager mLayoutManager;
     Location mLastLocation = null;
 
-    // TODO: change this to app package name
     public static final String SHARED_PREFS = "com.joeymejias.chewsit";
+
+    private int mOffset = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LocationSingleton.getInstance(this).getGoogleApiClient().connect();
 
         // Checks to see if the user has seen the onBoarding yet; if not, it jumps to the OnBoardActivity
         if (!getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
                 .getBoolean(OnBoardActivity.SEEN_ON_BOARD, false)) {
             startActivity(new Intent(this, OnBoardActivity.class));
         }
-        startActivity(new Intent(this, OnBoardActivity.class));
 
         setContentView(R.layout.activity_main);
-
-        // Get permission for fine location
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.
-                    ACCESS_FINE_LOCATION}, 300);
-            return;
-        }
-
-        mCategoryRecycler = (RecyclerView) findViewById(R.id.category_recycler);
+        mCardRecycler = (RecyclerView) findViewById(R.id.category_recycler);
 
         // Remove the ability to scroll by overriding the linearlayout manager
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false) {
+        mLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false) {
             @Override
             public boolean canScrollHorizontally() {
                 return false;
@@ -66,64 +58,45 @@ public class MainActivity extends AppCompatActivity implements CardRecyclerAdapt
                 return false;
             }
         };
-        mCategoryRecycler.setLayoutManager(layoutManager);
-
-        new AsyncTask<Double, Void, ArrayList<Business>>() {
-
-            @Override
-            protected ArrayList<Business> doInBackground(Double... doubles) {
-
-                while(mLastLocation == null) {
-                    mLastLocation = LocationSingleton.getInstance(MainActivity.this).getCurrentLocation();
-                }
-                double lat = mLastLocation.getLatitude();
-                double lng = mLastLocation.getLongitude();
-
-                CoordinateOptions coordinate = CoordinateOptions.builder()
-                        .latitude(lat)
-                        .longitude(lng)
-                        .build();
-                return YelpHelper.getInstance().businessSearch(coordinate, doubles[0]);
-            }
-
-            @Override
-            protected void onPostExecute(ArrayList<Business> businesses) {
-
-                mAdapter = new CardRecyclerAdapter(businesses);
-                mCategoryRecycler.setAdapter(mAdapter);
-
-                // Add swiping to the recyclerview
-                ItemTouchHelper.Callback callback = new ItemTouchHelperCallBack(mAdapter);
-                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-                touchHelper.attachToRecyclerView(mCategoryRecycler);
-            }
-        }.execute(1.0); //TODO: Relate this input(radius in miles) to a user input in settings
-
-//        getSupportFragmentManager()
-//                .beginTransaction()
-//                .add(R.id.category_content_container,
-//                        new MainDetailFragment())
-//                .commit();
-
+        mCardRecycler.setLayoutManager(mLayoutManager);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (!LocationSingleton.getInstance(this).getGoogleApiClient().isConnected()) {
-            LocationSingleton.getInstance(this).getGoogleApiClient().connect();
+
+        // Get permission for fine location
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.
+                    ACCESS_FINE_LOCATION}, 300);
+            return;
         }
+        LocationSingleton.getInstance(this).getGoogleApiClient().connect();
+
         if (mAdapter != null) {
             mAdapter.notifyDataSetChanged();
+        } else {
+            new YelpSearchTask(){
+                @Override
+                protected void onPostExecute(ArrayList<Business> businesses) {
+                    super.onPostExecute(businesses);
+                    mOffset += businesses.size();
+                    mAdapter = new CardRecyclerAdapter(businesses);
+                    mCardRecycler.setAdapter(mAdapter);
+
+                    // Add swiping to the recyclerview
+                    ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelperCallBack(mAdapter));
+                    touchHelper.attachToRecyclerView(mCardRecycler);
+                }
+            }.execute(1.0); //TODO: Relate this input(radius in miles) to a user input in settings
         }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (LocationSingleton.getInstance(this).getGoogleApiClient().isConnected()) {
-            LocationSingleton.getInstance(this).getGoogleApiClient().disconnect();
-        }
+        LocationSingleton.getInstance(this).getGoogleApiClient().disconnect();
     }
 
     @Override
@@ -131,6 +104,36 @@ public class MainActivity extends AppCompatActivity implements CardRecyclerAdapt
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(SELECTED_POSITION, position);
         startActivity(intent);
+    }
+
+    @Override
+    public void onItemDismissListener() {
+        new YelpSearchTask() {
+            @Override
+            protected void onPostExecute(ArrayList<Business> businesses) {
+                super.onPostExecute(businesses);
+                mOffset += businesses.size();
+                mAdapter.notifyDataSetChanged();
+            }
+        }.execute(1.0);
+    }
+
+    private class YelpSearchTask extends AsyncTask<Double, Void, ArrayList<Business>> {
+
+        @Override
+        protected ArrayList<Business> doInBackground(Double... doubles) {
+            while(mLastLocation == null) {
+                mLastLocation = LocationSingleton.getInstance(MainActivity.this).getCurrentLocation();
+            }
+            double lat = mLastLocation.getLatitude();
+            double lng = mLastLocation.getLongitude();
+
+            CoordinateOptions coordinate = CoordinateOptions.builder()
+                    .latitude(lat)
+                    .longitude(lng)
+                    .build();
+            return YelpHelper.getInstance().businessSearch(coordinate, doubles[0], mOffset);
+        }
     }
 }
 

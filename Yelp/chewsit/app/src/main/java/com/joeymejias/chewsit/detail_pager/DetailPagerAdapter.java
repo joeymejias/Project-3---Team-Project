@@ -2,8 +2,9 @@ package com.joeymejias.chewsit.detail_pager;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 
+import com.joeymejias.chewsit.YelpHelper;
 import com.yelp.clientlib.entities.Business;
 
 import java.util.ArrayList;
@@ -11,23 +12,36 @@ import java.util.ArrayList;
 /**
  * Created by joshuagoldberg on 8/15/16.
  */
-public class DetailPagerAdapter extends FragmentStatePagerAdapter {
+public class DetailPagerAdapter extends FragmentPagerAdapter {
 
-    private ArrayList<Business> mBusinesses;
+    private int mBusinessListNumber;
 
-    public DetailPagerAdapter(FragmentManager fm, ArrayList<Business> businesses) {
+    public DetailPagerAdapter(FragmentManager fm, int businessListNumber) {
         super(fm);
-        mBusinesses = businesses;
+        mBusinessListNumber = businessListNumber;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return DetailFragment.newInstance(position, mBusinesses.get(position));
+        return DetailFragment.newInstance(position, mBusinessListNumber);
     }
 
     @Override
     public int getCount() {
-        return mBusinesses.size();
+        return 3;
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        switch (position) {
+            case 0:
+                return "DETAILS";
+            case 1:
+                return "SHARE";
+            case 2:
+                return "MAP";
+        }
+        return null;
     }
 
 

@@ -1,11 +1,11 @@
 package com.joeymejias.chewsit.detail_pager;
 
-import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +23,32 @@ import java.util.ArrayList;
  */
 public class MainDetailFragment extends Fragment {
 
+    private static final String POSITION_KEY = "position";
+    private static final String BUSINESS_KEY = "businessListNumber";
+
     private DetailPagerAdapter mDetailPagerAdapter;
     private ViewPager mViewPager;
-    private Location mLastLocation = null;
+    private TabLayout mTabLayout;
+
+    private int mBusinessListNumber;
+
+    public MainDetailFragment() {}
+
+    public static MainDetailFragment newInstance(int businessListNumber) {
+        MainDetailFragment fragment = new MainDetailFragment();
+        Bundle args = new Bundle();
+        args.putInt(BUSINESS_KEY, businessListNumber);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mBusinessListNumber = getArguments().getInt(BUSINESS_KEY);
+        }
+    }
 
     @Nullable
     @Override
@@ -33,6 +56,7 @@ public class MainDetailFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_detail, container, false);
         mViewPager = (ViewPager) rootView.findViewById(R.id.category_container);
+        mTabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
         return rootView;
 
     }
@@ -41,30 +65,8 @@ public class MainDetailFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //TODO: This Async Task isn't needed; remove it without breaking stuff
-        new AsyncTask<Double, Void, ArrayList<Business>>() {
-
-            @Override
-            protected ArrayList<Business> doInBackground(Double... doubles) {
-
-                while(mLastLocation == null) {
-                    mLastLocation = LocationSingleton.getInstance(getContext()).getCurrentLocation();
-                }
-                double lat = mLastLocation.getLatitude();
-                double lng = mLastLocation.getLongitude();
-
-                CoordinateOptions coordinate = CoordinateOptions.builder()
-                        .latitude(lat)
-                        .longitude(lng)
-                        .build();
-                return YelpHelper.getInstance().businessSearch(coordinate, doubles[0]);
-            }
-
-            @Override
-            protected void onPostExecute(ArrayList<Business> businesses) {
-                mDetailPagerAdapter = new DetailPagerAdapter(getFragmentManager(), businesses);
-                mViewPager.setAdapter(mDetailPagerAdapter);
-            }
-        }.execute(1.0);
+        mDetailPagerAdapter = new DetailPagerAdapter(getFragmentManager(), mBusinessListNumber);
+        mViewPager.setAdapter(mDetailPagerAdapter);
+        mTabLayout.setupWithViewPager(mViewPager);
     }
 }
