@@ -21,6 +21,7 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
 
     private ArrayList<Business> mBusinesses;
     private ItemSelectListener mItemSelectListener;
+    private ItemDismissListener mItemDismissListener;
 
     public CardRecyclerAdapter(ArrayList<Business> businesses) {
         mBusinesses = businesses;
@@ -29,6 +30,7 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
     @Override
     public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         mItemSelectListener = (ItemSelectListener) parent.getContext();
+        mItemDismissListener = (ItemDismissListener) parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View parentView = inflater.inflate(R.layout.card_main, parent, false);
         CardViewHolder cardViewHolder = new CardViewHolder(parentView);
@@ -46,7 +48,8 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
         Glide.with(holder.getBusinessImageView().getContext())
                 .load(updatedImageUrl)
                 .into(holder.getBusinessImageView());
-        holder.getCategoryTextView().setText(mBusinesses.get(position).categories().get(0).name());
+        holder.getCategoryTextView().setText(mBusinesses.get(position).name());
+                // categories().get(0).name());
         holder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,6 +67,9 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
     public void onItemDismiss(int position) {
         mBusinesses.remove(position);
         notifyItemRemoved(position);
+        if(mBusinesses.size() == 0) {
+            mItemDismissListener.onItemDismissListener();
+        }
     }
 
     @Override
@@ -73,6 +79,10 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
 
     public interface ItemSelectListener {
         void onItemSelectListener(int position);
+    }
+
+    public interface ItemDismissListener {
+        void onItemDismissListener();
     }
 }
 
