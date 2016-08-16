@@ -37,6 +37,9 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
         return cardViewHolder;
     }
 
+    /*****
+     * binder for business image and cuisine type
+     */
     @Override
     public void onBindViewHolder(CardViewHolder holder, final int position) {
         // Have to change the url path from /ms.jpg to /o.jpg to get full size images
