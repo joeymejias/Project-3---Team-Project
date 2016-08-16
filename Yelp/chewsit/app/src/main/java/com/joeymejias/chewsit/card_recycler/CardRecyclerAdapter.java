@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.joeymejias.chewsit.R;
+import com.joeymejias.chewsit.YelpHelper;
 import com.yelp.clientlib.entities.Business;
 
 import java.util.ArrayList;
@@ -48,8 +49,7 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
         Glide.with(holder.getBusinessImageView().getContext())
                 .load(updatedImageUrl)
                 .into(holder.getBusinessImageView());
-        holder.getCategoryTextView().setText(mBusinesses.get(position).name());
-                // categories().get(0).name());
+        holder.getCategoryTextView().setText(mBusinesses.get(position).categories().get(0).name());
         holder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -67,9 +67,7 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
     public void onItemDismiss(int position) {
         mBusinesses.remove(position);
         notifyItemRemoved(position);
-        if(mBusinesses.size() == 0) {
-            mItemDismissListener.onItemDismissListener();
-        }
+        mItemDismissListener.onItemDismissListener();
     }
 
     @Override
@@ -83,6 +81,10 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
 
     public interface ItemDismissListener {
         void onItemDismissListener();
+    }
+
+    public interface UpdateTabletDetailView {
+        public void onUpdateTabletDetailView();
     }
 }
 

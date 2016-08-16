@@ -3,6 +3,8 @@ package com.joeymejias.chewsit.detail_pager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
 
 import com.joeymejias.chewsit.YelpHelper;
 import com.yelp.clientlib.entities.Business;
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 /**
  * Created by joshuagoldberg on 8/15/16.
  */
-public class DetailPagerAdapter extends FragmentPagerAdapter {
+public class DetailPagerAdapter extends FragmentStatePagerAdapter {
 
     private int mBusinessListNumber;
 
@@ -44,5 +46,8 @@ public class DetailPagerAdapter extends FragmentPagerAdapter {
         return null;
     }
 
-
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
+    }
 }

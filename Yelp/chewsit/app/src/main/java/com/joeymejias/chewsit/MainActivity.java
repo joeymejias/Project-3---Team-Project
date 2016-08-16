@@ -5,15 +5,19 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.View;
 
 import com.joeymejias.chewsit.card_recycler.CardRecyclerAdapter;
 import com.joeymejias.chewsit.card_recycler.ItemTouchHelperCallBack;
+import com.joeymejias.chewsit.detail_pager.DetailPagerAdapter;
 import com.yelp.clientlib.entities.Business;
 import com.yelp.clientlib.entities.options.CoordinateOptions;
 
@@ -25,14 +29,21 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
     public static final String SELECTED_POSITION = "selected_position";
 
-    RecyclerView mCardRecycler;
-    CardRecyclerAdapter mAdapter;
-    LinearLayoutManager mLayoutManager;
-    Location mLastLocation = null;
+    private View mDetailContainer;
+    private DetailPagerAdapter mDetailPagerAdapter;
+    private ViewPager mViewPager;
+    private TabLayout mTabLayout;
+
+    private RecyclerView mCardRecycler;
+    private CardRecyclerAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
+    private Location mLastLocation = null;
 
     public static final String SHARED_PREFS = "com.joeymejias.chewsit";
 
+    private boolean mScreenIsLageEnoughForTwoPanes = false;
     private int mOffset = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +56,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         setContentView(R.layout.activity_main);
+        mDetailContainer = findViewById(R.id.detail_content_container);
         mCardRecycler = (RecyclerView) findViewById(R.id.category_recycler);
 
         // Remove the ability to scroll by overriding the linearlayout manager
@@ -53,6 +65,7 @@ public class MainActivity extends AppCompatActivity
             public boolean canScrollHorizontally() {
                 return false;
             }
+
             @Override
             public boolean canScrollVertically() {
                 return false;
@@ -74,10 +87,12 @@ public class MainActivity extends AppCompatActivity
         }
         LocationSingleton.getInstance(this).getGoogleApiClient().connect();
 
+        // if the adapter is not null, a Yelp API call has already been made. So just update the adapter
+        // if it's null, then make the Yelp API call
         if (mAdapter != null) {
             mAdapter.notifyDataSetChanged();
         } else {
-            new YelpSearchTask(){
+            new YelpSearchTask() {
                 @Override
                 protected void onPostExecute(ArrayList<Business> businesses) {
                     super.onPostExecute(businesses);
@@ -88,6 +103,17 @@ public class MainActivity extends AppCompatActivity
                     // Add swiping to the recyclerview
                     ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelperCallBack(mAdapter));
                     touchHelper.attachToRecyclerView(mCardRecycler);
+
+                    // Check to see if we're on a tablet. If so, launch the detail view
+                    if (mDetailContainer != null && mDetailContainer.getVisibility() == View.VISIBLE) {
+                        mScreenIsLageEnoughForTwoPanes = true;
+
+                        mViewPager = (ViewPager) findViewById(R.id.category_container);
+                        mTabLayout = (TabLayout) findViewById(R.id.tabs);
+                        mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), 0);
+                        mViewPager.setAdapter(mDetailPagerAdapter);
+                        mTabLayout.setupWithViewPager(mViewPager);
+                    }
                 }
             }.execute(1.0); //TODO: Relate this input(radius in miles) to a user input in settings
         }
@@ -101,28 +127,43 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemSelectListener(int position) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra(SELECTED_POSITION, position);
-        startActivity(intent);
+        if (mScreenIsLageEnoughForTwoPanes) {
+            mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), position);
+            mViewPager.setAdapter(mDetailPagerAdapter);
+            mDetailPagerAdapter.notifyDataSetChanged();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra(SELECTED_POSITION, position);
+            startActivity(intent);
+        }
     }
 
     @Override
     public void onItemDismissListener() {
-        new YelpSearchTask() {
-            @Override
-            protected void onPostExecute(ArrayList<Business> businesses) {
-                super.onPostExecute(businesses);
-                mOffset += businesses.size();
-                mAdapter.notifyDataSetChanged();
+        if (YelpHelper.getInstance().getBusinesses().size() == 0) {
+            new YelpSearchTask() {
+                @Override
+                protected void onPostExecute(ArrayList<Business> businesses) {
+                    super.onPostExecute(businesses);
+                    mOffset += businesses.size();
+                    mAdapter.notifyDataSetChanged();
+                }
+            }.execute(1.0);
+        }
+        if (mScreenIsLageEnoughForTwoPanes) {
+            while(YelpHelper.getInstance().getBusinesses().isEmpty()) {
             }
-        }.execute(1.0);
+            mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), 0);
+            mViewPager.setAdapter(mDetailPagerAdapter);
+            mDetailPagerAdapter.notifyDataSetChanged();
+        }
     }
 
     private class YelpSearchTask extends AsyncTask<Double, Void, ArrayList<Business>> {
 
         @Override
         protected ArrayList<Business> doInBackground(Double... doubles) {
-            while(mLastLocation == null) {
+            while (mLastLocation == null) {
                 mLastLocation = LocationSingleton.getInstance(MainActivity.this).getCurrentLocation();
             }
             double lat = mLastLocation.getLatitude();

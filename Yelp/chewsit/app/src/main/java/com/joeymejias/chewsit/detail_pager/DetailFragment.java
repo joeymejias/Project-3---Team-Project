@@ -33,7 +33,6 @@ public class DetailFragment extends Fragment {
     private static final String BUSINESS_KEY = "businessListNumber";
 
     private Business mBusiness;
-    private int mPosition;
 
     private ImageView mBusinessImageView;
     private TextView mNameTv, mAddressTv, mPhoneTv, mRatingTv, mSnippetTv;
@@ -45,7 +44,6 @@ public class DetailFragment extends Fragment {
     public static DetailFragment newInstance(int position, int businessListNumber) {
         DetailFragment fragment = new DetailFragment();
         Bundle args = new Bundle();
-        args.putInt(POSITION_KEY, position);
         args.putInt(BUSINESS_KEY, businessListNumber);
         fragment.setArguments(args);
         return fragment;
@@ -56,7 +54,6 @@ public class DetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mBusiness = YelpHelper.getInstance().getBusinesses().get(getArguments().getInt(BUSINESS_KEY));
-            mPosition = getArguments().getInt(POSITION_KEY);
         }
     }
 
