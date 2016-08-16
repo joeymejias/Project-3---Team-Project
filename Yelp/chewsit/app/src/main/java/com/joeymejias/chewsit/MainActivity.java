@@ -49,32 +49,32 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Checks to see if the user has seen the onBoarding yet; if not, it jumps to the OnBoardActivity
-        if (!getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
-                .getBoolean(OnBoardActivity.SEEN_ON_BOARD, false)) {
-            startActivity(new Intent(this, OnBoardActivity.class));
-        }
-
-        setContentView(R.layout.activity_main);
-        mCardRecycler = (RecyclerView) findViewById(R.id.category_recycler);
-
-        // Remove the ability to scroll by overriding the linearlayout manager
-        mLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false) {
-            @Override
-            public boolean canScrollHorizontally() {
-                return false;
-            }
-            @Override
-            public boolean canScrollVertically() {
-                return false;
-            }
-        };
-        mCardRecycler.setLayoutManager(mLayoutManager);
-
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            showNetworkAvailableNotification();
+            // Checks to see if the user has seen the onBoarding yet; if not, it jumps to the OnBoardActivity
+            if (!getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+                    .getBoolean(OnBoardActivity.SEEN_ON_BOARD, false)) {
+                startActivity(new Intent(this, OnBoardActivity.class));
+            }
+
+            setContentView(R.layout.activity_main);
+            mCardRecycler = (RecyclerView) findViewById(R.id.category_recycler);
+
+            // Remove the ability to scroll by overriding the linearlayout manager
+            mLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false) {
+                @Override
+                public boolean canScrollHorizontally() {
+                    return false;
+                }
+
+                @Override
+                public boolean canScrollVertically() {
+                    return false;
+                }
+            };
+            mCardRecycler.setLayoutManager(mLayoutManager);
+
         } else {
             showNetworkNotAvailableNotification();
         }
@@ -84,31 +84,37 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        // Get permission for fine location
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.
-                    ACCESS_FINE_LOCATION}, 300);
-            return;
-        }
-        LocationSingleton.getInstance(this).getGoogleApiClient().connect();
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // Get permission for fine location
+            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.
+                        ACCESS_FINE_LOCATION}, 300);
+                return;
+            }
+            LocationSingleton.getInstance(this).getGoogleApiClient().connect();
 
-        if (mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
+            if (mAdapter != null) {
+                mAdapter.notifyDataSetChanged();
+            } else {
+                new YelpSearchTask() {
+                    @Override
+                    protected void onPostExecute(ArrayList<Business> businesses) {
+                        super.onPostExecute(businesses);
+                        mOffset += businesses.size();
+                        mAdapter = new CardRecyclerAdapter(businesses);
+                        mCardRecycler.setAdapter(mAdapter);
+
+                        // Add swiping to the recyclerview
+                        ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelperCallBack(mAdapter));
+                        touchHelper.attachToRecyclerView(mCardRecycler);
+                    }
+                }.execute(1.0); //TODO: Relate this input(radius in miles) to a user input in settings
+            }
         } else {
-            new YelpSearchTask(){
-                @Override
-                protected void onPostExecute(ArrayList<Business> businesses) {
-                    super.onPostExecute(businesses);
-                    mOffset += businesses.size();
-                    mAdapter = new CardRecyclerAdapter(businesses);
-                    mCardRecycler.setAdapter(mAdapter);
-
-                    // Add swiping to the recyclerview
-                    ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelperCallBack(mAdapter));
-                    touchHelper.attachToRecyclerView(mCardRecycler);
-                }
-            }.execute(1.0); //TODO: Relate this input(radius in miles) to a user input in settings
+            showNetworkNotAvailableNotification();
         }
     }
 
@@ -141,7 +147,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected ArrayList<Business> doInBackground(Double... doubles) {
-            while(mLastLocation == null) {
+            while (mLastLocation == null) {
                 mLastLocation = LocationSingleton.getInstance(MainActivity.this).getCurrentLocation();
             }
             double lat = mLastLocation.getLatitude();
@@ -162,28 +168,32 @@ public class MainActivity extends AppCompatActivity
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(R.drawable.icon);
-        mBuilder.setContentTitle("Notification Alert!");
+        mBuilder.setContentTitle("Internet unavailable!");
         mBuilder.setContentText("The network in your location is not available");
         mBuilder.setContentIntent(pIntent);
-        mBuilder.setPriority(Notification.PRIORITY_MAX);
+        mBuilder.setPriority(Notification.PRIORITY_DEFAULT);
         mBuilder.setStyle(bigPictureStyle);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(NOTIFICATION_NOT_AVAILABLE, mBuilder.build());
+        startActivity(intent);
     }
 
-    private void showNetworkAvailableNotification() {
-        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
-        bigPictureStyle.bigPicture(BitmapFactory.decodeResource(getResources(), R.drawable.network_available)).build();
-        Intent intent = new Intent(this, NoInternetActivity.class);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-        mBuilder.setSmallIcon(R.drawable.icon);
-        mBuilder.setContentTitle("Notification Alert!");
-        mBuilder.setContentText("The network in your location is available");
-        mBuilder.setContentIntent(pIntent);
-        mBuilder.setStyle(bigPictureStyle);
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(NOTIFICATION_AVAILABLE, mBuilder.build());
-    }
+    /**
+     * This logic is not required.
+     */
+//    private void showNetworkAvailableNotification() {
+//        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
+//        bigPictureStyle.bigPicture(BitmapFactory.decodeResource(getResources(), R.drawable.network_available)).build();
+//        Intent intent = new Intent(this, NoInternetActivity.class);
+//        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+//        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+//        mBuilder.setSmallIcon(R.drawable.icon);
+//        mBuilder.setContentTitle("Notification Alert!");
+//        mBuilder.setContentText("The network in your location is available");
+//        mBuilder.setContentIntent(pIntent);
+//        mBuilder.setStyle(bigPictureStyle);
+//        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        mNotificationManager.notify(NOTIFICATION_AVAILABLE, mBuilder.build());
+//    }
 }
 
