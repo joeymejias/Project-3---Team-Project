@@ -33,6 +33,7 @@ public class YelpHelper {
     private YelpAPI yelpAPI;
     private ArrayList<Business> businesses;
 
+
     private YelpHelper() {
         apiFactory = new YelpAPIFactory(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET);
         yelpAPI = apiFactory.createAPI();
