@@ -95,6 +95,11 @@ public class DetailFragment extends Fragment {
         mRatingTv.setText(mBusiness.rating().toString());
         mSnippetTv.setText(mBusiness.snippetText());
 
+        //TODO:ADD FACEBOOK BUTTON
+
+        //TODO:ADD UBER BUTTON
+
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
