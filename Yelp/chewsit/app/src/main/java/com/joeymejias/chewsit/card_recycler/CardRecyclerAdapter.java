@@ -37,6 +37,9 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
         return cardViewHolder;
     }
 
+    /*****
+     * binder for business image and cuisine type
+     */
     @Override
     public void onBindViewHolder(CardViewHolder holder, final int position) {
         // Have to change the url path from /ms.jpg to /o.jpg to get full size images
@@ -48,7 +51,7 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
         Glide.with(holder.getBusinessImageView().getContext())
                 .load(updatedImageUrl)
                 .into(holder.getBusinessImageView());
-        holder.getCategoryTextView().setText(mBusinesses.get(position).name());
+        holder.getCategoryTextView().setText(mBusinesses.get(position).categories().get(0).name());
                 // categories().get(0).name());
         holder.setOnClickListener(new View.OnClickListener() {
             @Override
