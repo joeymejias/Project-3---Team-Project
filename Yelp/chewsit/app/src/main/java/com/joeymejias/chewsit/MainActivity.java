@@ -1,13 +1,21 @@
 package com.joeymejias.chewsit;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -21,6 +29,9 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements CardRecyclerAdapter.ItemSelectListener, CardRecyclerAdapter.ItemDismissListener {
+
+    public static final int NOTIFICATION_AVAILABLE = 1;
+    public static final int NOTIFICATION_NOT_AVAILABLE = 2;
 
     private static final String TAG = "MainActivity";
     public static final String SELECTED_POSITION = "selected_position";
@@ -59,6 +70,14 @@ public class MainActivity extends AppCompatActivity
             }
         };
         mCardRecycler.setLayoutManager(mLayoutManager);
+
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            showNetworkAvailableNotification();
+        } else {
+            showNetworkNotAvailableNotification();
+        }
     }
 
     @Override
@@ -134,6 +153,37 @@ public class MainActivity extends AppCompatActivity
                     .build();
             return YelpHelper.getInstance().businessSearch(coordinate, doubles[0], mOffset);
         }
+    }
+
+    private void showNetworkNotAvailableNotification() {
+        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
+        bigPictureStyle.bigPicture(BitmapFactory.decodeResource(getResources(), R.drawable.no_network)).build();
+        Intent intent = new Intent(this, NoInternetActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setSmallIcon(R.drawable.icon);
+        mBuilder.setContentTitle("Notification Alert!");
+        mBuilder.setContentText("The network in your location is not available");
+        mBuilder.setContentIntent(pIntent);
+        mBuilder.setPriority(Notification.PRIORITY_MAX);
+        mBuilder.setStyle(bigPictureStyle);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(NOTIFICATION_NOT_AVAILABLE, mBuilder.build());
+    }
+
+    private void showNetworkAvailableNotification() {
+        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
+        bigPictureStyle.bigPicture(BitmapFactory.decodeResource(getResources(), R.drawable.network_available)).build();
+        Intent intent = new Intent(this, NoInternetActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setSmallIcon(R.drawable.icon);
+        mBuilder.setContentTitle("Notification Alert!");
+        mBuilder.setContentText("The network in your location is available");
+        mBuilder.setContentIntent(pIntent);
+        mBuilder.setStyle(bigPictureStyle);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(NOTIFICATION_AVAILABLE, mBuilder.build());
     }
 }
 
