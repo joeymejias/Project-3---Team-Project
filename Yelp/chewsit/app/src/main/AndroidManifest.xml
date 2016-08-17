@@ -37,6 +37,9 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".NoInternetActivity">
         </activity>
+
+        <service android:name=".DistanceJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
     </application>
 
 </manifest>
