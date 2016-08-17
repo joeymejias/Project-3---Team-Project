@@ -1,6 +1,7 @@
 package com.joeymejias.chewsit.detail_pager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,6 +38,7 @@ public class DetailFragment extends Fragment {
 
     private ImageView mBusinessImageView;
     private TextView mNameTv, mAddressTv, mPhoneTv, mRatingTv, mSnippetTv;
+    private Button mShareButton;
 
     private OnFragmentInteractionListener mListener;
 
@@ -67,6 +70,7 @@ public class DetailFragment extends Fragment {
         mAddressTv = (TextView) viewRoot.findViewById(R.id.address_detail);
         mRatingTv = (TextView) viewRoot.findViewById(R.id.rating_detail);
         mSnippetTv = (TextView) viewRoot.findViewById(R.id.snippet_detail);
+        mShareButton = (Button) viewRoot.findViewById(R.id.share_button);
         return viewRoot;
     }
 
@@ -92,7 +96,21 @@ public class DetailFragment extends Fragment {
         mRatingTv.setText(mBusiness.rating().toString());
         mSnippetTv.setText(mBusiness.snippetText());
 
+
+        //Button shareButton = new Button(this);
+
+        mShareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                sendIntent.setType("text/plain");
+                sendIntent.putExtra(Intent.EXTRA_TEXT, mBusiness.url());
+                startActivity(Intent.createChooser(sendIntent, "How do you want to share?"));
+            }
+        });
+
         //TODO:ADD FACEBOOK BUTTON
+
 
         //TODO:ADD UBER BUTTON
 
