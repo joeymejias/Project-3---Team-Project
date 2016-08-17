@@ -4,6 +4,9 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -32,7 +35,9 @@ import com.yelp.clientlib.entities.options.CoordinateOptions;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements CardRecyclerAdapter.ItemSelectListener, CardRecyclerAdapter.ItemDismissListener {
+        implements CardRecyclerAdapter.ItemSelectListener,
+        CardRecyclerAdapter.ItemDismissListener,
+        DistanceJobService.DistanceJobServiceFinished {
 
     public static final int NOTIFICATION_AVAILABLE = 1;
     public static final int NOTIFICATION_NOT_AVAILABLE = 2;
@@ -53,7 +58,6 @@ public class MainActivity extends AppCompatActivity
     public static final String SHARED_PREFS = "com.joeymejias.chewsit";
 
     private boolean mScreenIsLageEnoughForTwoPanes = false;
-    private int mOffset = 0;
 
 
     @Override
@@ -62,6 +66,7 @@ public class MainActivity extends AppCompatActivity
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
         if (networkInfo != null && networkInfo.isConnected()) {
             // Checks to see if the user has seen the onBoarding yet; if not, it jumps to the OnBoardActivity
             if (!getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
@@ -69,9 +74,9 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(this, OnBoardActivity.class));
             }
 
-        setContentView(R.layout.activity_main);
-        mDetailContainer = findViewById(R.id.detail_content_container);
-        mCardRecycler = (RecyclerView) findViewById(R.id.category_recycler);
+            setContentView(R.layout.activity_main);
+            mDetailContainer = findViewById(R.id.detail_content_container);
+            mCardRecycler = (RecyclerView) findViewById(R.id.category_recycler);
 
             // Remove the ability to scroll by overriding the linearlayout manager
             mLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false) {
@@ -98,6 +103,7 @@ public class MainActivity extends AppCompatActivity
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
         if (networkInfo != null && networkInfo.isConnected()) {
             // Get permission for fine location
             if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -108,38 +114,51 @@ public class MainActivity extends AppCompatActivity
             }
             LocationSingleton.getInstance(this).getGoogleApiClient().connect();
 
-        // if the adapter is not null, a Yelp API call has already been made. So just update the adapter
-        // if it's null, then make the Yelp API call
-        if (mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
-        } else {
-            new YelpSearchTask() {
-                @Override
-                protected void onPostExecute(ArrayList<Business> businesses) {
-                    super.onPostExecute(businesses);
-                    mOffset += businesses.size();
-                    mAdapter = new CardRecyclerAdapter(businesses);
-                    mCardRecycler.setAdapter(mAdapter);
+            // if the adapter is not null, a Yelp API call has already been made. So just update the adapter
+            // if it's null, then make the Yelp API call
+            if (mAdapter != null) {
+                mAdapter.notifyDataSetChanged();
+            } else {
+                new YelpSearchTask() {
+                    @Override
+                    protected void onPostExecute(ArrayList<Business> businesses) {
+                        super.onPostExecute(businesses);
+                        mAdapter = new CardRecyclerAdapter(businesses);
+                        mCardRecycler.setAdapter(mAdapter);
 
-                    // Add swiping to the recyclerview
-                    ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelperCallBack(mAdapter));
-                    touchHelper.attachToRecyclerView(mCardRecycler);
+                        // Add swiping to the recyclerview
+                        ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelperCallBack(mAdapter));
+                        touchHelper.attachToRecyclerView(mCardRecycler);
 
-                    // Check to see if we're on a tablet. If so, launch the detail view
-                    if (mDetailContainer != null && mDetailContainer.getVisibility() == View.VISIBLE) {
-                        mScreenIsLageEnoughForTwoPanes = true;
+                        // Check to see if we're on a tablet. If so, use a master-detail format
+                        if (mDetailContainer != null && mDetailContainer.getVisibility() == View.VISIBLE) {
+                            mScreenIsLageEnoughForTwoPanes = true;
 
-                        mViewPager = (ViewPager) findViewById(R.id.category_container);
-                        mTabLayout = (TabLayout) findViewById(R.id.tabs);
-                        mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), 0);
-                        mViewPager.setAdapter(mDetailPagerAdapter);
-                        mTabLayout.setupWithViewPager(mViewPager);
+                            mViewPager = (ViewPager) findViewById(R.id.category_container);
+                            mTabLayout = (TabLayout) findViewById(R.id.tabs);
+                            mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), 0);
+                            mViewPager.setAdapter(mDetailPagerAdapter);
+                            mTabLayout.setupWithViewPager(mViewPager);
+                        }
                     }
-                }
-            }.execute(1.0); //TODO: Relate this input(radius in miles) to a user input in settings
-        }} else {
+                }.execute(1.0); //TODO: Relate this input(radius in miles) to a user input in settings
+            }
+
+            // Checks to see if the user is running Lollipop or above; if so, schedules a job
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                JobInfo distanceJob = new JobInfo.Builder(66, new ComponentName(getPackageName(),
+                        DistanceJobService.class.getName()))
+                        .setPeriodic(300_000)
+                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                        .build();
+                JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+                scheduler.schedule(distanceJob);
+            }
+
+        } else {
             showNetworkNotAvailableNotification();
-        }}
+        }
+    }
 
 
     @Override
@@ -163,41 +182,26 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemDismissListener() {
-        if (YelpHelper.getInstance().getBusinesses().size() == 0) {
-            new YelpSearchTask() {
-                @Override
-                protected void onPostExecute(ArrayList<Business> businesses) {
-                    super.onPostExecute(businesses);
-                    mOffset += businesses.size();
-                    mAdapter.notifyDataSetChanged();
-                }
-            }.execute(1.0);
+        if (YelpHelper.getInstance().getBusinesses().size() < 5) {
+            YelpSearchTask task = new YelpSearchTask();
+            if (!(task.getStatus() == AsyncTask.Status.RUNNING)) {
+                task.execute(1.0); //TODO: Let user input radius
+            }
         }
         if (mScreenIsLageEnoughForTwoPanes) {
-            while(YelpHelper.getInstance().getBusinesses().isEmpty()) {
+            if (!YelpHelper.getInstance().getBusinesses().isEmpty()) {
+                mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), 0);
+                mViewPager.setAdapter(mDetailPagerAdapter);
+                mDetailPagerAdapter.notifyDataSetChanged();
+            } else {
+                //TODO: Tell user that there are no more businesses nearby
             }
-            mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), 0);
-            mViewPager.setAdapter(mDetailPagerAdapter);
-            mDetailPagerAdapter.notifyDataSetChanged();
         }
     }
 
-    private class YelpSearchTask extends AsyncTask<Double, Void, ArrayList<Business>> {
-
-        @Override
-        protected ArrayList<Business> doInBackground(Double... doubles) {
-            while (mLastLocation == null) {
-                mLastLocation = LocationSingleton.getInstance(MainActivity.this).getCurrentLocation();
-            }
-            double lat = mLastLocation.getLatitude();
-            double lng = mLastLocation.getLongitude();
-
-            CoordinateOptions coordinate = CoordinateOptions.builder()
-                    .latitude(lat)
-                    .longitude(lng)
-                    .build();
-            return YelpHelper.getInstance().businessSearch(coordinate, doubles[0], mOffset);
-        }
+    @Override
+    public void onDistanceJobServiceFinished() {
+        mAdapter.notifyDataSetChanged();
     }
 
     private void showNetworkNotAvailableNotification() {
@@ -216,23 +220,5 @@ public class MainActivity extends AppCompatActivity
         mNotificationManager.notify(NOTIFICATION_NOT_AVAILABLE, mBuilder.build());
         startActivity(intent);
     }
-
-    /**
-     * This logic is not required.
-     */
-//    private void showNetworkAvailableNotification() {
-//        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
-//        bigPictureStyle.bigPicture(BitmapFactory.decodeResource(getResources(), R.drawable.network_available)).build();
-//        Intent intent = new Intent(this, NoInternetActivity.class);
-//        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
-//        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-//        mBuilder.setSmallIcon(R.drawable.icon);
-//        mBuilder.setContentTitle("Notification Alert!");
-//        mBuilder.setContentText("The network in your location is available");
-//        mBuilder.setContentIntent(pIntent);
-//        mBuilder.setStyle(bigPictureStyle);
-//        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        mNotificationManager.notify(NOTIFICATION_AVAILABLE, mBuilder.build());
-//    }
 }
 

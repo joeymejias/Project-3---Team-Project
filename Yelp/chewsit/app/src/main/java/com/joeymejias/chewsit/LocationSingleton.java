@@ -26,6 +26,7 @@ public class LocationSingleton implements GoogleApiClient.ConnectionCallbacks,
     private Context mContext;
 
     private GoogleApiClient mGoogleApiClient;
+    private Location mLastSearchLocation;
     private Location mCurrentLocation;
     private LocationRequest mLocationRequest;
     private Boolean mRequestingLocationUpdates;
@@ -34,6 +35,7 @@ public class LocationSingleton implements GoogleApiClient.ConnectionCallbacks,
 
     private LocationSingleton(Context context) {
         mContext = context.getApplicationContext();
+        mLastSearchLocation = null;
         mRequestingLocationUpdates = true;
         buildGoogleApiClient();
         createLocationRequest();
@@ -46,8 +48,7 @@ public class LocationSingleton implements GoogleApiClient.ConnectionCallbacks,
         return sInstance;
     }
 
-    private LocationSingleton setContext(Context context) {
-        mContext = context;
+    public static LocationSingleton getInstance() {
         return sInstance;
     }
 
@@ -117,5 +118,13 @@ public class LocationSingleton implements GoogleApiClient.ConnectionCallbacks,
         }
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         return mCurrentLocation;
+    }
+
+    public void setLastSearchLocation(Location location) {
+        mLastSearchLocation = location;
+    }
+
+    public Location getLastSearchLocation() {
+        return mLastSearchLocation;
     }
 }

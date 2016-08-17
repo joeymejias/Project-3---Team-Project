@@ -21,6 +21,7 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
     private static final String TAG = "CardRecyclerAdapter";
 
     private ArrayList<Business> mBusinesses;
+
     private ItemSelectListener mItemSelectListener;
     private ItemDismissListener mItemDismissListener;
 
@@ -84,10 +85,6 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
 
     public interface ItemDismissListener {
         void onItemDismissListener();
-    }
-
-    public interface UpdateTabletDetailView {
-        public void onUpdateTabletDetailView();
     }
 }
 
