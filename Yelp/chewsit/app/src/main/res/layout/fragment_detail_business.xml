@@ -73,6 +73,12 @@
             uber:ub__style="black"
             android:id="@+id/uber"/>
 
+        <Button
+            android:id="@+id/share_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SHARE"/>
+
     </LinearLayout>
 
 </ScrollView>

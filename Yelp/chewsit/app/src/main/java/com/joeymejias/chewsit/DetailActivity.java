@@ -1,10 +1,13 @@
 package com.joeymejias.chewsit;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 
 import com.joeymejias.chewsit.detail_pager.DetailPagerAdapter;
 import com.uber.sdk.android.core.UberSdk;
@@ -24,6 +27,7 @@ public class DetailActivity extends AppCompatActivity {
     private DetailPagerAdapter mDetailPagerAdapter;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
+    private Button mShareButton;
 
     private int mSelectedPosition;
 
@@ -65,5 +69,8 @@ public class DetailActivity extends AppCompatActivity {
                 //        .setDropoffLocation(37.795079, -122.4397805, "Embarcadero", "One Embarcadero Center, San Francisco")
                 .build();
         rideRequestButton.setRideParameters(rideParams);
+
+
+
     }
 }
