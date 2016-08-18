@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -22,20 +21,18 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import com.joeymejias.chewsit.card_recycler.CardRecyclerAdapter;
-import com.joeymejias.chewsit.card_recycler.ItemTouchHelperCallBack;
-import com.joeymejias.chewsit.detail_pager.DetailPagerAdapter;
+import com.joeymejias.chewsit.main_pager.MainPagerAdapter;
+import com.joeymejias.chewsit.main_pager.NonSwipeableViewPager;
+import com.joeymejias.chewsit.main_pager.RecyclerFragment;
 import com.yelp.clientlib.entities.Business;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements CardRecyclerAdapter.ItemSelectListener, CardRecyclerAdapter.ItemDismissListener {
+        implements CardRecyclerAdapter.ItemDismissListener, CardRecyclerAdapter.ItemSelectListener{
 
     public static final int NOTIFICATION_AVAILABLE = 1;
     public static final int NOTIFICATION_NOT_AVAILABLE = 2;
@@ -44,13 +41,10 @@ public class MainActivity extends AppCompatActivity
     public static final String SELECTED_POSITION = "selected_position";
 
     private View mDetailContainer;
-    private DetailPagerAdapter mDetailPagerAdapter;
-    private ViewPager mViewPager;
-    private TabLayout mTabLayout;
 
-    private RecyclerView mCardRecycler;
-    private CardRecyclerAdapter mAdapter;
-    private LinearLayoutManager mLayoutManager;
+    private MainPagerAdapter mMainPagerAdapter;
+    private NonSwipeableViewPager mViewPager;
+    private TabLayout mTabLayout;
 
     private JobScheduler mScheduler;
 
@@ -74,22 +68,9 @@ public class MainActivity extends AppCompatActivity
             }
 
             setContentView(R.layout.activity_main);
+
             mDetailContainer = findViewById(R.id.detail_content_container);
-            mCardRecycler = (RecyclerView) findViewById(R.id.category_recycler);
 
-            // Remove the ability to scroll by overriding the linearlayout manager
-            mLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false) {
-                @Override
-                public boolean canScrollHorizontally() {
-                    return false;
-                }
-
-                @Override
-                public boolean canScrollVertically() {
-                    return false;
-                }
-            };
-            mCardRecycler.setLayoutManager(mLayoutManager);
 
         } else {
             showNetworkNotAvailableNotification();
@@ -113,30 +94,31 @@ public class MainActivity extends AppCompatActivity
             }
             LocationSingleton.getInstance(this).getGoogleApiClient().connect();
 
-            // if the adapter is not null, a Yelp API call has already been made. So just update the adapter
+            // if the adapter is not null a Yelp API call has already been made, so just update it.
             // if it's null, then make the Yelp API call
-            if (mAdapter != null) {
-                mAdapter.notifyDataSetChanged();
+            if (mMainPagerAdapter != null) {
+                mMainPagerAdapter.notifyDataSetChanged();
             } else {
                 new YelpSearchTask() {
                     @Override
                     protected void onPostExecute(ArrayList<Business> businesses) {
                         super.onPostExecute(businesses);
-                        mAdapter = new CardRecyclerAdapter(businesses);
-                        mCardRecycler.setAdapter(mAdapter);
 
-                        // Add swiping to the recyclerview
-                        ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelperCallBack(mAdapter));
-                        touchHelper.attachToRecyclerView(mCardRecycler);
+                        mViewPager = (NonSwipeableViewPager) findViewById(R.id.main_container);
+                        mTabLayout = (TabLayout) findViewById(R.id.tabs);
+                        mMainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
+                        mViewPager.setAdapter(mMainPagerAdapter);
+                        mTabLayout.setupWithViewPager(mViewPager);
 
+                        //TODO:
                         // Check to see if we're on a tablet. If so, use a master-detail format
                         if (mDetailContainer != null && mDetailContainer.getVisibility() == View.VISIBLE) {
                             mScreenIsLageEnoughForTwoPanes = true;
 
-                            mViewPager = (ViewPager) findViewById(R.id.category_container);
+                            mViewPager = (NonSwipeableViewPager) findViewById(R.id.category_container);
                             mTabLayout = (TabLayout) findViewById(R.id.tabs);
-                            mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), 0);
-                            mViewPager.setAdapter(mDetailPagerAdapter);
+                            mMainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
+                            mViewPager.setAdapter(mMainPagerAdapter);
                             mTabLayout.setupWithViewPager(mViewPager);
                         }
                     }
@@ -171,9 +153,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onItemSelectListener(int position) {
         if (mScreenIsLageEnoughForTwoPanes) {
-            mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), position);
-            mViewPager.setAdapter(mDetailPagerAdapter);
-            mDetailPagerAdapter.notifyDataSetChanged();
+            mMainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
+            mViewPager.setAdapter(mMainPagerAdapter);
+            mMainPagerAdapter.notifyDataSetChanged();
         } else {
             Intent intent = new Intent(this, DetailActivity.class);
             intent.putExtra(SELECTED_POSITION, position);
@@ -191,9 +173,9 @@ public class MainActivity extends AppCompatActivity
         }
         if (mScreenIsLageEnoughForTwoPanes) {
             if (!YelpHelper.getInstance().getBusinesses().isEmpty()) {
-                mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), 0);
-                mViewPager.setAdapter(mDetailPagerAdapter);
-                mDetailPagerAdapter.notifyDataSetChanged();
+                mMainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
+                mViewPager.setAdapter(mMainPagerAdapter);
+                mMainPagerAdapter.notifyDataSetChanged();
             } else {
                 //TODO: Tell user that there are no more businesses nearby
             }
