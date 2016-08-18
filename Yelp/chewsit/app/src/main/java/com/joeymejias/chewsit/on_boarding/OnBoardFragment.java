@@ -21,11 +21,11 @@ public class OnBoardFragment extends Fragment {
     // TODO: Replace these URLs with the images we want to use to introduce Chewsit
     // or update the layout entirely
     private static final String IMAGE_URL_1 =
-            "https://s-media-cache-ak0.pinimg.com/236x/64/70/fc/6470fcea2b4893fa18699c9276e0eff6.jpg";
+            "https://lh3.googleusercontent.com/OA25IMhMzp0N4l8VLR6myCpBWIBsEJFZ2qkmWlYDWHrDs6VnxTxbct63ro4YGSBexQQ_B0jVYBfJjg=w720-h1280-no";
     private static final String IMAGE_URL_2 =
-            "https://s-media-cache-ak0.pinimg.com/236x/fd/1d/83/fd1d83f9d75e211da80a4616ca3d3461.jpg";
+            "https://lh3.googleusercontent.com/zPC6O3ilNq2Cahx59K1nmZ4EQ4jWtRjXz4o3Iwe_sxbvZDUyMgO_HbpyUkzLDcaBjQsvlN3884cDWg=w720-h1280-no";
     private static final String IMAGE_URL_3 =
-            "https://s-media-cache-ak0.pinimg.com/236x/e6/9a/c3/e69ac369eef7d444b4ee3ffb022fdbd9.jpg";
+            "https://lh3.googleusercontent.com/lfhQkQ0oxGyqFNCTA1t5YRtB2aLiNkFP2tL0sW-nxzxX2IaCOgEfOLY6IqOHsXvr0ha6vl97j08Ojg=w720-h1280-no";
 
     private OnBoardingInteractionListener mListener;
     private ImageView mImageView;
