@@ -1,47 +1,43 @@
-package com.joeymejias.chewsit.detail_pager;
+package com.joeymejias.chewsit.main_pager;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.util.Log;
-
-import com.joeymejias.chewsit.YelpHelper;
-import com.yelp.clientlib.entities.Business;
-
-import java.util.ArrayList;
 
 /**
  * Created by joshuagoldberg on 8/15/16.
  */
-public class DetailPagerAdapter extends FragmentStatePagerAdapter {
+public class MainPagerAdapter extends FragmentPagerAdapter {
 
-    private int mBusinessListNumber;
 
-    public DetailPagerAdapter(FragmentManager fm, int businessListNumber) {
+    public MainPagerAdapter(FragmentManager fm) {
         super(fm);
-        mBusinessListNumber = businessListNumber;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return DetailFragment.newInstance(position, mBusinessListNumber);
+        switch (position) {
+            default:
+            case 0:
+                return new RecyclerFragment();
+            case 1:
+                return new SettingsFragment();
+        }
     }
 
     @Override
     public int getCount() {
-        return 3;
+        return 2;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0:
-                return "DETAILS";
+                return "SWIPE";
             case 1:
-                return "SHARE";
-            case 2:
-                return "MAP";
+                return "SETTINGS";
         }
         return null;
     }
