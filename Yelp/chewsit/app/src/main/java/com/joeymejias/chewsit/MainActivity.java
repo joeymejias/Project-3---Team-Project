@@ -21,7 +21,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
+import android.text.Layout;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.joeymejias.chewsit.card_recycler.CardRecyclerAdapter;
 import com.joeymejias.chewsit.main_pager.MainPagerAdapter;
@@ -45,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     private double mRadiusSetting;
 
     private View mDetailContainer;
+
+    private ProgressBar mSplash;
 
     private MainPagerAdapter mMainPagerAdapter;
     private NonSwipeableViewPager mViewPager;
@@ -111,6 +117,18 @@ public class MainActivity extends AppCompatActivity
             } else {
                 new YelpSearchTask() {
                     @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+
+                        // on some click or some loading we need to wait for...
+                        mSplash = (ProgressBar) findViewById(R.id.progressBar);
+                        mSplash.setVisibility(View.VISIBLE);
+
+
+
+                    }
+
+                    @Override
                     protected void onPostExecute(ArrayList<Business> businesses) {
                         super.onPostExecute(businesses);
 
@@ -121,6 +139,8 @@ public class MainActivity extends AppCompatActivity
                         mTabLayout.setupWithViewPager(mViewPager);
                         mTabLayout.getTabAt(0).setIcon(R.drawable.local_dining_white);
                         mTabLayout.getTabAt(1).setIcon(R.drawable.settings_white);
+
+                        mSplash.setVisibility(ProgressBar.GONE);
 
                         //TODO:
                         // Check to see if we're on a tablet. If so, use a master-detail format

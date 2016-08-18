@@ -2,8 +2,10 @@ package com.joeymejias.chewsit;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 import com.joeymejias.chewsit.on_boarding.MainOnBoardFragment;
 import com.joeymejias.chewsit.on_boarding.OnBoardFragment;
@@ -14,6 +16,8 @@ import com.joeymejias.chewsit.on_boarding.OnBoardFragment;
 public class OnBoardActivity extends AppCompatActivity implements OnBoardFragment.OnBoardingInteractionListener {
 
     public static final String SEEN_ON_BOARD = "HasSeenOnBoard";
+
+    private ProgressBar mSplash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,7 @@ public class OnBoardActivity extends AppCompatActivity implements OnBoardFragmen
                 .add(R.id.on_board_content_container,
                         new MainOnBoardFragment())
                 .commit();
+
     }
 
     @Override
