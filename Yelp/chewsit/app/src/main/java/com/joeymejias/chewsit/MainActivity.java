@@ -39,6 +39,10 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "MainActivity";
     public static final String SELECTED_POSITION = "selected_position";
+    public static final String SETTINGS_RADIUS = "settings_radius";
+
+    private boolean mHasOnBoarded;
+    private double mRadiusSetting;
 
     private View mDetailContainer;
 
@@ -61,6 +65,11 @@ public class MainActivity extends AppCompatActivity
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
+            mHasOnBoarded = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+                    .getBoolean(OnBoardActivity.SEEN_ON_BOARD, false);
+            mRadiusSetting = Double.longBitsToDouble(getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+                    .getLong(SETTINGS_RADIUS, Double.doubleToLongBits(1.0)));
+
             // Checks to see if the user has seen the onBoarding yet; if not, it jumps to the OnBoardActivity
             if (!getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
                     .getBoolean(OnBoardActivity.SEEN_ON_BOARD, false)) {
@@ -70,7 +79,6 @@ public class MainActivity extends AppCompatActivity
             setContentView(R.layout.activity_main);
 
             mDetailContainer = findViewById(R.id.detail_content_container);
-
 
         } else {
             showNetworkNotAvailableNotification();
@@ -154,6 +162,10 @@ public class MainActivity extends AppCompatActivity
                 mScheduler.cancelAll();
             }
         }
+        getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+                .edit()
+                .putLong(SETTINGS_RADIUS, Double.doubleToLongBits(YelpHelper.getInstance().getRadius()))
+                .commit();
     }
 
     @Override
