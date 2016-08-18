@@ -15,6 +15,7 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
@@ -30,14 +31,11 @@ import com.joeymejias.chewsit.card_recycler.CardRecyclerAdapter;
 import com.joeymejias.chewsit.card_recycler.ItemTouchHelperCallBack;
 import com.joeymejias.chewsit.detail_pager.DetailPagerAdapter;
 import com.yelp.clientlib.entities.Business;
-import com.yelp.clientlib.entities.options.CoordinateOptions;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements CardRecyclerAdapter.ItemSelectListener,
-        CardRecyclerAdapter.ItemDismissListener,
-        DistanceJobService.DistanceJobServiceFinished {
+        implements CardRecyclerAdapter.ItemSelectListener, CardRecyclerAdapter.ItemDismissListener {
 
     public static final int NOTIFICATION_AVAILABLE = 1;
     public static final int NOTIFICATION_NOT_AVAILABLE = 2;
@@ -53,7 +51,8 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView mCardRecycler;
     private CardRecyclerAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
-    private Location mLastLocation = null;
+
+    private JobScheduler mScheduler;
 
     public static final String SHARED_PREFS = "com.joeymejias.chewsit";
 
@@ -146,13 +145,13 @@ public class MainActivity extends AppCompatActivity
 
             // Checks to see if the user is running Lollipop or above; if so, schedules a job
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                JobInfo distanceJob = new JobInfo.Builder(66, new ComponentName(getPackageName(),
-                        DistanceJobService.class.getName()))
-                        .setPeriodic(300_000)
+                JobInfo recommendJob = new JobInfo.Builder(66, new ComponentName(getPackageName(),
+                        RecommendJobService.class.getName()))
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                        .setMinimumLatency(30_000)
                         .build();
-                JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-                scheduler.schedule(distanceJob);
+                mScheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+                mScheduler.schedule(recommendJob);
             }
 
         } else {
@@ -160,11 +159,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
         LocationSingleton.getInstance(this).getGoogleApiClient().disconnect();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mScheduler.cancelAll();
+        }
     }
 
     @Override
@@ -197,11 +198,6 @@ public class MainActivity extends AppCompatActivity
                 //TODO: Tell user that there are no more businesses nearby
             }
         }
-    }
-
-    @Override
-    public void onDistanceJobServiceFinished() {
-        mAdapter.notifyDataSetChanged();
     }
 
     private void showNetworkNotAvailableNotification() {

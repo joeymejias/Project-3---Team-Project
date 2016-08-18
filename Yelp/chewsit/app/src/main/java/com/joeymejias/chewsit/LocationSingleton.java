@@ -26,17 +26,13 @@ public class LocationSingleton implements GoogleApiClient.ConnectionCallbacks,
     private Context mContext;
 
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastSearchLocation;
     private Location mCurrentLocation;
     private LocationRequest mLocationRequest;
-    private Boolean mRequestingLocationUpdates;
 
     private static final String TAG = "LocationSingleton";
 
     private LocationSingleton(Context context) {
         mContext = context.getApplicationContext();
-        mLastSearchLocation = null;
-        mRequestingLocationUpdates = true;
         buildGoogleApiClient();
         createLocationRequest();
     }
@@ -62,9 +58,9 @@ public class LocationSingleton implements GoogleApiClient.ConnectionCallbacks,
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(30000);
-        mLocationRequest.setFastestInterval(3000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(60_000);
+        mLocationRequest.setFastestInterval(15_000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
     @Override
@@ -76,18 +72,8 @@ public class LocationSingleton implements GoogleApiClient.ConnectionCallbacks,
             }
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         }
-        if (mRequestingLocationUpdates) {
-            startLocationUpdates();
-        }
-    }
-
-    protected void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(mContext,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
+        // Start requesting location updates
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     @Override
@@ -118,13 +104,5 @@ public class LocationSingleton implements GoogleApiClient.ConnectionCallbacks,
         }
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         return mCurrentLocation;
-    }
-
-    public void setLastSearchLocation(Location location) {
-        mLastSearchLocation = location;
-    }
-
-    public Location getLastSearchLocation() {
-        return mLastSearchLocation;
     }
 }

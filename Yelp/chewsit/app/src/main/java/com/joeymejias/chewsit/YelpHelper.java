@@ -34,6 +34,7 @@ public class YelpHelper {
     private YelpAPIFactory apiFactory;
     private YelpAPI yelpAPI;
     private ArrayList<Business> businesses;
+    private Business recommendedBusiness;
 
     private int mSearches = 0;
     private int mOffset = 0;
@@ -87,6 +88,17 @@ public class YelpHelper {
             Response<SearchResponse> response = call.execute();
             for(Business business : response.body().businesses()) {
                 businesses.add(business);
+                // Check to see if there's a business nearby with a 4.5 rating or above, with over 1000 reviews, and with a deal
+                if (business.rating() >= 4.5 && business.reviewCount() >= 1000) {
+                    if (recommendedBusiness == null) {
+                        recommendedBusiness = business;
+                    } else {
+                        if (business.rating() > recommendedBusiness.rating() ||
+                                business.reviewCount() > recommendedBusiness.reviewCount()) {
+                            recommendedBusiness = business;
+                        }
+                    }
+                }
             }
             mSearches += 1;
             if (!businesses.isEmpty()) {
@@ -107,8 +119,7 @@ public class YelpHelper {
         return businesses;
     }
 
-    public void resetSearchCounts() {
-        mSearches = 0;
-        mOffset = 0;
+    public Business getRecommendedBusiness() {
+        return recommendedBusiness;
     }
 }

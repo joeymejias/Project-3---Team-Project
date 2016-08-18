@@ -24,8 +24,6 @@ public class YelpSearchTask extends AsyncTask<Double, Void, ArrayList<Business>>
             lastLocation = LocationSingleton.getInstance().getCurrentLocation();
         }
 
-        LocationSingleton.getInstance().setLastSearchLocation(lastLocation);
-
         double lat = lastLocation.getLatitude();
         double lng = lastLocation.getLongitude();
 
