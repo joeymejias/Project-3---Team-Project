@@ -27,13 +27,42 @@
                 android:layout_weight="9"
                 android:scaleType="centerCrop"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:paddingTop="16dp"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitCenter"
+                    android:id="@+id/business_rating"/>
+                <TextView
+                    android:paddingTop="14dp"
+                    android:paddingStart="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="20sp"
+                    android:id="@+id/rating_count"/>
+                <ImageView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/yelp_logo"
+                    android:id="@+id/yelp_logo"
+                    />
+            </LinearLayout>
+
+
             <TextView
                 android:id="@+id/business_category"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:layout_gravity="center"
-                android:padding="16dp"
+                android:textSize="24sp"
                 android:text="All American" />
 
         </LinearLayout>
