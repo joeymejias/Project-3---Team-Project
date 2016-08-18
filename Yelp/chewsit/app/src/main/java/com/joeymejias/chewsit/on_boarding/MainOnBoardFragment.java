@@ -7,6 +7,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.joeymejias.chewsit.R;
 
@@ -22,8 +23,10 @@ public class MainOnBoardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_main_on_board, container, false);
         mViewPager = (ViewPager) rootView.findViewById(R.id.on_board_container);
+        // on some click or some loading we need to wait for...
         return rootView;
 
     }

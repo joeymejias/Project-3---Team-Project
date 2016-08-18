@@ -17,8 +17,6 @@ public class OnBoardActivity extends AppCompatActivity implements OnBoardFragmen
 
     public static final String SEEN_ON_BOARD = "HasSeenOnBoard";
 
-    private ProgressBar mSplash;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,8 +33,10 @@ public class OnBoardActivity extends AppCompatActivity implements OnBoardFragmen
 
     }
 
+
     @Override
     public void onOnBoardInteraction() {
+
         if(!getSharedPreferences(MainActivity.SHARED_PREFS, MODE_PRIVATE)
                 .getBoolean(SEEN_ON_BOARD, false)) {
             getSharedPreferences(MainActivity.SHARED_PREFS, MODE_PRIVATE)

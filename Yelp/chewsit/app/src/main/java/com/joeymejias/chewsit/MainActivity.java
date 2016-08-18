@@ -24,8 +24,10 @@ import android.support.v7.app.NotificationCompat;
 import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import com.joeymejias.chewsit.card_recycler.CardRecyclerAdapter;
 import com.joeymejias.chewsit.main_pager.MainPagerAdapter;
@@ -50,7 +52,9 @@ public class MainActivity extends AppCompatActivity
 
     private View mDetailContainer;
 
+    private RelativeLayout mSplashColor;
     private ProgressBar mSplash;
+    private ImageView mLogo;
 
     private MainPagerAdapter mMainPagerAdapter;
     private NonSwipeableViewPager mViewPager;
@@ -120,10 +124,15 @@ public class MainActivity extends AppCompatActivity
                     protected void onPreExecute() {
                         super.onPreExecute();
 
+                        mSplashColor = (RelativeLayout) findViewById(R.id.splash);
+                        mSplashColor.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
+                        mLogo = (ImageView) findViewById(R.id.chewsit_logo);
+                        mLogo.setVisibility(View.VISIBLE);
+
                         // on some click or some loading we need to wait for...
                         mSplash = (ProgressBar) findViewById(R.id.progressBar);
                         mSplash.setVisibility(View.VISIBLE);
-
 
 
                     }
@@ -140,7 +149,9 @@ public class MainActivity extends AppCompatActivity
                         mTabLayout.getTabAt(0).setIcon(R.drawable.local_dining_white);
                         mTabLayout.getTabAt(1).setIcon(R.drawable.settings_white);
 
+                        mSplashColor.setBackgroundColor(getResources().getColor(R.color.colorWhite));
                         mSplash.setVisibility(ProgressBar.GONE);
+                        mLogo.setVisibility(View.GONE);
 
                         //TODO:
                         // Check to see if we're on a tablet. If so, use a master-detail format

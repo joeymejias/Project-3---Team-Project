@@ -10,18 +10,29 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/appbar">
+        android:layout_above="@+id/appbar"
+        android:id="@+id/splash">
     <com.joeymejias.chewsit.main_pager.NonSwipeableViewPager
         android:id="@+id/main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
 
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/chewsit_logo"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/chewsit_logo"
+            />
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/progressBar"
-            android:layout_centerInParent="true"/>
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="135dp"/>
     </RelativeLayout>
 
     <android.support.design.widget.AppBarLayout
