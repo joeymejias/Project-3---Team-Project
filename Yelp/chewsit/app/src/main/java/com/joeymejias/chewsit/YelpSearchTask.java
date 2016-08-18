@@ -13,10 +13,10 @@ import java.util.ArrayList;
  */
 
 
-public class YelpSearchTask extends AsyncTask<Double, Void, ArrayList<Business>> {
+public class YelpSearchTask extends AsyncTask<Void, Void, ArrayList<Business>> {
 
     @Override
-    protected ArrayList<Business> doInBackground(Double... doubles) {
+    protected ArrayList<Business> doInBackground(Void... voids) {
 
         Location lastLocation = null;
 
@@ -31,6 +31,7 @@ public class YelpSearchTask extends AsyncTask<Double, Void, ArrayList<Business>>
                 .latitude(lat)
                 .longitude(lng)
                 .build();
-        return YelpHelper.getInstance().businessSearch(coordinate, doubles[0]);
+
+        return YelpHelper.getInstance().businessSearch(coordinate, YelpHelper.getInstance().getRadius());
     }
 }

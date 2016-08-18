@@ -98,6 +98,8 @@ public class MainActivity extends AppCompatActivity
             // if it's null, then make the Yelp API call
             if (mMainPagerAdapter != null) {
                 mMainPagerAdapter.notifyDataSetChanged();
+                mTabLayout.getTabAt(0).setIcon(R.drawable.local_dining_white);
+                mTabLayout.getTabAt(1).setIcon(R.drawable.settings_white);
             } else {
                 new YelpSearchTask() {
                     @Override
@@ -109,6 +111,8 @@ public class MainActivity extends AppCompatActivity
                         mMainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
                         mViewPager.setAdapter(mMainPagerAdapter);
                         mTabLayout.setupWithViewPager(mViewPager);
+                        mTabLayout.getTabAt(0).setIcon(R.drawable.local_dining_white);
+                        mTabLayout.getTabAt(1).setIcon(R.drawable.settings_white);
 
                         //TODO:
                         // Check to see if we're on a tablet. If so, use a master-detail format
@@ -122,7 +126,7 @@ public class MainActivity extends AppCompatActivity
                             mTabLayout.setupWithViewPager(mViewPager);
                         }
                     }
-                }.execute(1.0); //TODO: Relate this input(radius in miles) to a user input in settings
+                }.execute(); //TODO: Relate this input(radius in miles) to a user input in settings
             }
 
             // Checks to see if the user is running Lollipop or above; if so, schedules a job
@@ -146,7 +150,9 @@ public class MainActivity extends AppCompatActivity
         super.onStop();
         LocationSingleton.getInstance(this).getGoogleApiClient().disconnect();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mScheduler.cancelAll();
+            if (mScheduler != null) {
+                mScheduler.cancelAll();
+            }
         }
     }
 
@@ -168,7 +174,7 @@ public class MainActivity extends AppCompatActivity
         if (YelpHelper.getInstance().getBusinesses().size() < 5) {
             YelpSearchTask task = new YelpSearchTask();
             if (!(task.getStatus() == AsyncTask.Status.RUNNING)) {
-                task.execute(1.0); //TODO: Let user input radius
+                task.execute(); //TODO: Let user input radius
             }
         }
         if (mScreenIsLageEnoughForTwoPanes) {

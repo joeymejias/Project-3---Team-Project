@@ -36,6 +36,7 @@ public class YelpHelper {
     private ArrayList<Business> businesses;
     private Business recommendedBusiness;
 
+    private double mRadius = 1.0;
     private int mSearches = 0;
     private int mOffset = 0;
     private int mSort = 1;
@@ -53,7 +54,7 @@ public class YelpHelper {
         return sInstance;
     }
 
-    public ArrayList<Business> businessSearch (CoordinateOptions coordinate, double radius) {
+    public ArrayList<Business> businessSearch (CoordinateOptions coordinate, Double radius) {
 
         // Yelp can only return 40 results max (2 searches with 20 results each), so after 2 searches the offset
         // should be set back to 0. The sorting method is also changed in the hopes of different results showing up
@@ -105,7 +106,7 @@ public class YelpHelper {
                 mOffset += businesses.size();
                 return businesses;
             } else {
-                return businessSearch(coordinate, radius + 1);  // If the business list is empty, search a larger radius
+                return businessSearch(coordinate, radius + 0.5);  // If the business list is empty, search a larger radius
             }
 
         } catch (IOException e) {
@@ -121,5 +122,13 @@ public class YelpHelper {
 
     public Business getRecommendedBusiness() {
         return recommendedBusiness;
+    }
+
+    public void setRadius(double newRadius) {
+        mRadius = newRadius;
+    }
+
+    public double getRadius() {
+        return mRadius;
     }
 }
