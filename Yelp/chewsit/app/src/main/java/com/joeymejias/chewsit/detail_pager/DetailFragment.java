@@ -56,7 +56,12 @@ public class DetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mBusiness = YelpHelper.getInstance().getBusinesses().get(getArguments().getInt(BUSINESS_KEY));
+            if (getArguments().getInt(BUSINESS_KEY) != 0) {
+                mBusiness = YelpHelper.getInstance().getRecommendedBusiness();
+            }
+            else {
+                mBusiness = YelpHelper.getInstance().getBusinesses().get(getArguments().getInt(BUSINESS_KEY));
+            }
         }
     }
 

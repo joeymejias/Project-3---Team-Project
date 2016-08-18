@@ -36,7 +36,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        mSelectedPosition = getIntent().getIntExtra(MainActivity.SELECTED_POSITION, 0);
+        mSelectedPosition = getIntent().getIntExtra(MainActivity.SELECTED_POSITION, 2);
 
         mViewPager = (ViewPager) findViewById(R.id.category_container);
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
