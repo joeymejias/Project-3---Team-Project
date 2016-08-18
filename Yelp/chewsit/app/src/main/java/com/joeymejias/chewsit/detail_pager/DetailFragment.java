@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.joeymejias.chewsit.R;
 import com.joeymejias.chewsit.YelpHelper;
+import com.joeymejias.chewsit.card_recycler.CardViewHolder;
 import com.yelp.clientlib.entities.Business;
 import com.yelp.clientlib.entities.Review;
 
@@ -37,7 +38,9 @@ public class DetailFragment extends Fragment {
     private Business mBusiness;
 
     private ImageView mBusinessImageView;
-    private TextView mNameTv, mAddressTv, mPhoneTv, mRatingTv, mSnippetTv;
+    private ImageView mYelpAttribution;
+    private TextView mNameTv, mAddressTv, mPhoneTv, mSnippetTv;
+    private ImageView mRatingImage;
     private Button mShareButton;
 
     private OnFragmentInteractionListener mListener;
@@ -65,11 +68,12 @@ public class DetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View viewRoot = inflater.inflate(R.layout.fragment_detail_business, container, false);
         mBusinessImageView = (ImageView) viewRoot.findViewById(R.id.image_detail);
+        mYelpAttribution = (ImageView) viewRoot.findViewById(R.id.yelp_button);
         mNameTv = (TextView) viewRoot.findViewById(R.id.name_detail);
         mPhoneTv = (TextView) viewRoot.findViewById(R.id.phone_detail);
         mAddressTv = (TextView) viewRoot.findViewById(R.id.address_detail);
-        mRatingTv = (TextView) viewRoot.findViewById(R.id.rating_detail);
-        mSnippetTv = (TextView) viewRoot.findViewById(R.id.snippet_detail);
+        mRatingImage = (ImageView) viewRoot.findViewById(R.id.rating_detail);
+        //mSnippetTv = (TextView) viewRoot.findViewById(R.id.snippet_detail);
         mShareButton = (Button) viewRoot.findViewById(R.id.share_button);
         return viewRoot;
     }
@@ -93,8 +97,31 @@ public class DetailFragment extends Fragment {
         }
         mAddressTv.setText(address.trim());
         mPhoneTv.setText(mBusiness.phone());
-        mRatingTv.setText(mBusiness.rating().toString());
-        mSnippetTv.setText(mBusiness.snippetText());
+
+        Glide.with(mRatingImage.getContext())
+                .load(mBusiness.ratingImgUrlLarge())
+                .into(mRatingImage);
+
+        // Yelp Rating attribution
+        mRatingImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mBusiness.url()));
+                view.getContext().startActivity(browserIntent);
+            }
+        });
+
+        //mSnippetTv.setText(mBusiness.snippetText());
+
+        // Yelp Attribution
+        mYelpAttribution.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mBusiness.url()));
+                view.getContext().startActivity(browserIntent);
+            }
+        });
+
 
 
         //Button shareButton = new Button(this);
@@ -109,11 +136,10 @@ public class DetailFragment extends Fragment {
             }
         });
 
-        //TODO:ADD FACEBOOK BUTTON
+        // TODO:ADD FACEBOOK BUTTON
 
 
-        //TODO:ADD UBER BUTTON
-
+        // UBER BUTTON in DetailActivity
 
     }
 

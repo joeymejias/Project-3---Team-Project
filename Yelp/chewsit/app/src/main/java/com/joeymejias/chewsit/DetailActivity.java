@@ -27,6 +27,7 @@ public class DetailActivity extends AppCompatActivity {
     private DetailPagerAdapter mDetailPagerAdapter;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
+    private Button mYelpAttribution;
     private Button mShareButton;
 
     private int mSelectedPosition;
