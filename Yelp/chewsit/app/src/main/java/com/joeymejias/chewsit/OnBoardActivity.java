@@ -5,7 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import com.joeymejias.chewsit.on_boarding.MainOnBoardFragment;
 import com.joeymejias.chewsit.on_boarding.OnBoardFragment;
@@ -17,12 +19,30 @@ public class OnBoardActivity extends AppCompatActivity implements OnBoardFragmen
 
     public static final String SEEN_ON_BOARD = "HasSeenOnBoard";
 
+    private RelativeLayout mSplashColor;
+    private ProgressBar mSplash;
+    private ImageView mLogo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        setContentView(R.layout.activity_on_board);
+
+//
+//        mSplashColor = (RelativeLayout) findViewById(R.id.splash);
+//        mSplashColor.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+//
+//        mLogo = (ImageView) findViewById(R.id.chewsit_logo);
+//        mLogo.setVisibility(View.VISIBLE);
+
+        // on some click or some loading we need to wait for...
+        mSplash = (ProgressBar) findViewById(R.id.boardingProgressBar);
+        mSplash.setVisibility(View.VISIBLE);
+
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_on_board);
 
         getSupportFragmentManager()
@@ -36,7 +56,6 @@ public class OnBoardActivity extends AppCompatActivity implements OnBoardFragmen
 
     @Override
     public void onOnBoardInteraction() {
-
         if(!getSharedPreferences(MainActivity.SHARED_PREFS, MODE_PRIVATE)
                 .getBoolean(SEEN_ON_BOARD, false)) {
             getSharedPreferences(MainActivity.SHARED_PREFS, MODE_PRIVATE)

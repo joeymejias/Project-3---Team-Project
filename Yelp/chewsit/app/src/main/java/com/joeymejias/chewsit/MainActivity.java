@@ -71,6 +71,18 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_main);
+
+        mSplashColor = (RelativeLayout) findViewById(R.id.splash);
+        mSplashColor.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
+        mLogo = (ImageView) findViewById(R.id.chewsit_logo);
+        mLogo.setVisibility(View.VISIBLE);
+
+        // on some click or some loading we need to wait for...
+        mSplash = (ProgressBar) findViewById(R.id.progressBar);
+        mSplash.setVisibility(View.VISIBLE);
+
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
@@ -85,8 +97,6 @@ public class MainActivity extends AppCompatActivity
                     .getBoolean(OnBoardActivity.SEEN_ON_BOARD, false)) {
                 startActivity(new Intent(this, OnBoardActivity.class));
             }
-
-            setContentView(R.layout.activity_main);
 
             mDetailContainer = findViewById(R.id.detail_content_container);
 

@@ -49,6 +49,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textSize="20sp"
                 android:text="0.25" />
 
             <TextView
@@ -56,8 +57,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="end"
+                android:textSize="20sp"
                 android:text="5.0" />
 
         </LinearLayout>
+<ImageView
+    android:background="@color/colorPrimary"
+    android:id="@+id/easter_egg"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/chewsit_logo"/>
     </LinearLayout>
 </LinearLayout>
