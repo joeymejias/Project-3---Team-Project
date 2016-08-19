@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,7 +39,7 @@ import com.yelp.clientlib.entities.Business;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements CardRecyclerAdapter.ItemDismissListener, CardRecyclerAdapter.ItemSelectListener{
+        implements CardRecyclerAdapter.ItemDismissListener, CardRecyclerAdapter.ItemSelectListener {
 
     public static final int NOTIFICATION_AVAILABLE = 1;
     public static final int NOTIFICATION_NOT_AVAILABLE = 2;
@@ -47,10 +48,7 @@ public class MainActivity extends AppCompatActivity
     public static final String SELECTED_POSITION = "selected_position";
     public static final String SETTINGS_RADIUS = "settings_radius";
 
-    private boolean mHasOnBoarded;
     private double mRadiusSetting;
-
-    private View mDetailContainer;
 
     private RelativeLayout mSplashColor;
     private ProgressBar mSplash;
@@ -62,15 +60,13 @@ public class MainActivity extends AppCompatActivity
 
     private JobScheduler mScheduler;
 
+    int onStarted = 0;
+
     public static final String SHARED_PREFS = "com.joeymejias.chewsit";
-
-    private boolean mScreenIsLageEnoughForTwoPanes = false;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         mSplashColor = (RelativeLayout) findViewById(R.id.splash);
@@ -83,26 +79,8 @@ public class MainActivity extends AppCompatActivity
         mSplash = (ProgressBar) findViewById(R.id.progressBar);
         mSplash.setVisibility(View.VISIBLE);
 
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected()) {
-            mHasOnBoarded = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
-                    .getBoolean(OnBoardActivity.SEEN_ON_BOARD, false);
-            mRadiusSetting = Double.longBitsToDouble(getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
-                    .getLong(SETTINGS_RADIUS, Double.doubleToLongBits(1.0)));
-
-            // Checks to see if the user has seen the onBoarding yet; if not, it jumps to the OnBoardActivity
-            if (!getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
-                    .getBoolean(OnBoardActivity.SEEN_ON_BOARD, false)) {
-                startActivity(new Intent(this, OnBoardActivity.class));
-            }
-
-            mDetailContainer = findViewById(R.id.detail_content_container);
-
-        } else {
-            showNetworkNotAvailableNotification();
-        }
+        mRadiusSetting = Double.longBitsToDouble(getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+                .getLong(SETTINGS_RADIUS, Double.doubleToLongBits(1.0)));
     }
 
     @Override
@@ -118,7 +96,6 @@ public class MainActivity extends AppCompatActivity
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.
                         ACCESS_FINE_LOCATION}, 300);
-                return;
             }
             LocationSingleton.getInstance(this).getGoogleApiClient().connect();
 
@@ -162,20 +139,8 @@ public class MainActivity extends AppCompatActivity
                         mSplashColor.setBackgroundColor(getResources().getColor(R.color.colorWhite));
                         mSplash.setVisibility(ProgressBar.GONE);
                         mLogo.setVisibility(View.GONE);
-
-                        //TODO:
-                        // Check to see if we're on a tablet. If so, use a master-detail format
-                        if (mDetailContainer != null && mDetailContainer.getVisibility() == View.VISIBLE) {
-                            mScreenIsLageEnoughForTwoPanes = true;
-
-                            mViewPager = (NonSwipeableViewPager) findViewById(R.id.category_container);
-                            mTabLayout = (TabLayout) findViewById(R.id.tabs);
-                            mMainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
-                            mViewPager.setAdapter(mMainPagerAdapter);
-                            mTabLayout.setupWithViewPager(mViewPager);
-                        }
                     }
-                }.execute(); //TODO: Relate this input(radius in miles) to a user input in settings
+                }.execute();
             }
 
             // Checks to see if the user is running Lollipop or above; if so, schedules a job
@@ -192,6 +157,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             showNetworkNotAvailableNotification();
         }
+
     }
 
     @Override
@@ -211,15 +177,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemSelectListener(int position) {
-        if (mScreenIsLageEnoughForTwoPanes) {
-            mMainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
-            mViewPager.setAdapter(mMainPagerAdapter);
-            mMainPagerAdapter.notifyDataSetChanged();
-        } else {
-            Intent intent = new Intent(this, DetailActivity.class);
-            intent.putExtra(SELECTED_POSITION, position);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(SELECTED_POSITION, position);
+        startActivity(intent);
     }
 
     @Override
@@ -227,16 +187,7 @@ public class MainActivity extends AppCompatActivity
         if (YelpHelper.getInstance().getBusinesses().size() < 5) {
             YelpSearchTask task = new YelpSearchTask();
             if (!(task.getStatus() == AsyncTask.Status.RUNNING)) {
-                task.execute(); //TODO: Let user input radius
-            }
-        }
-        if (mScreenIsLageEnoughForTwoPanes) {
-            if (!YelpHelper.getInstance().getBusinesses().isEmpty()) {
-                mMainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
-                mViewPager.setAdapter(mMainPagerAdapter);
-                mMainPagerAdapter.notifyDataSetChanged();
-            } else {
-                //TODO: Tell user that there are no more businesses nearby
+                task.execute();
             }
         }
     }

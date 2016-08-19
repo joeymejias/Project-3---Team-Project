@@ -87,10 +87,15 @@ public class YelpHelper {
 
         try {
             Response<SearchResponse> response = call.execute();
+            int averageReviewCount = 0;
             for(Business business : response.body().businesses()) {
                 businesses.add(business);
-                // Check to see if there's a business nearby with a 4.5 rating or above, with over 1000 reviews, and with a deal
-                if (business.rating() >= 4.5 && business.reviewCount() >= 1000) {
+                averageReviewCount += business.reviewCount();
+            }
+            averageReviewCount /= businesses.size();
+            for(Business business : businesses) {
+                // Check to see if there's a business nearby with a 4.5 rating or above and with more than average review count
+                if (business.rating() >= 4.5 && business.reviewCount() >= averageReviewCount) {
                     if (recommendedBusiness == null) {
                         recommendedBusiness = business;
                     } else {
