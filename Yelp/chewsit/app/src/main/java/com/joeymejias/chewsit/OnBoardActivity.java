@@ -1,5 +1,6 @@
 package com.joeymejias.chewsit;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -63,6 +64,7 @@ public class OnBoardActivity extends AppCompatActivity implements OnBoardFragmen
                     .putBoolean(SEEN_ON_BOARD, true)
                     .commit();
         }
+        startActivity(new Intent(this, MainActivity.class));
         finish();
     }
 }
