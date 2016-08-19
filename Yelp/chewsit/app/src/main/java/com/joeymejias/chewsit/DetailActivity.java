@@ -37,6 +37,7 @@ public class DetailActivity extends AppCompatActivity {
     private ImageView mYelpAttribution;
     private TextView mNameTv, mAddressTv, mPhoneTv;
     private ImageView mRatingImage;
+    private TextView mRatingCount;
     private Button mShareButton;
 
     @Override
@@ -57,6 +58,7 @@ public class DetailActivity extends AppCompatActivity {
         mPhoneTv = (TextView) findViewById(R.id.phone_detail);
         mAddressTv = (TextView) findViewById(R.id.address_detail);
         mRatingImage = (ImageView) findViewById(R.id.rating_detail);
+        mRatingCount = (TextView) findViewById(R.id.rating_count_detail);
         mShareButton = (Button) findViewById(R.id.share_button);
 
         // Have to change the url path from /ms.jpg to /o.jpg to get full size images
@@ -71,6 +73,9 @@ public class DetailActivity extends AppCompatActivity {
         for(String string : mBusiness.location().displayAddress()) {
             address += string + "\n";
         }
+
+        mRatingCount.setText(mBusiness.reviewCount() + " ratings");
+
         mAddressTv.setText(address.trim());
         mPhoneTv.setText(mBusiness.phone());
 
