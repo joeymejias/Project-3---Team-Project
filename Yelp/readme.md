@@ -20,6 +20,8 @@ Over the course of the last three weeks we have operated our team using agile me
 - 8 points was at least three days
 - 13 points was the entirety of the sprint (no 13 point tickets were allowed)
 
+[Check out our Trello Board!](https://trello.com/b/lncwmPcV/adi-project-3-yelp)
+
 ---
 
 #### What did we do?
@@ -66,6 +68,7 @@ We have a working project that:
 
 - No internet before splash may cause images to not load
 - Push notification opened after app is force closed may crash app
+- Opening a push notification after your location has changed opens the current position in the recycler view of the new restaurant in the recycler view for your current location
 - Content on devices with less than 5 inches of screen real estate may appear differently
 
 
