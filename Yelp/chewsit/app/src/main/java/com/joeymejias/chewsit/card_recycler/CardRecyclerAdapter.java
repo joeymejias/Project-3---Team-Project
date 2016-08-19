@@ -89,12 +89,6 @@ public class CardRecyclerAdapter extends RecyclerView.Adapter<CardViewHolder>
             }
         });
         holder.getCategoryTextView().setText(mBusinesses.get(position).categories().get(0).name());
-        holder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mItemSelectListener.onItemSelectListener(position);
-            }
-        });
     }
 
     @Override
