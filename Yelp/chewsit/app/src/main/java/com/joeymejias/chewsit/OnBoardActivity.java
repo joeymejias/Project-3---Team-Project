@@ -2,8 +2,10 @@ package com.joeymejias.chewsit;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 import com.joeymejias.chewsit.on_boarding.MainOnBoardFragment;
 import com.joeymejias.chewsit.on_boarding.OnBoardFragment;
@@ -28,10 +30,13 @@ public class OnBoardActivity extends AppCompatActivity implements OnBoardFragmen
                 .add(R.id.on_board_content_container,
                         new MainOnBoardFragment())
                 .commit();
+
     }
+
 
     @Override
     public void onOnBoardInteraction() {
+
         if(!getSharedPreferences(MainActivity.SHARED_PREFS, MODE_PRIVATE)
                 .getBoolean(SEEN_ON_BOARD, false)) {
             getSharedPreferences(MainActivity.SHARED_PREFS, MODE_PRIVATE)
