@@ -160,6 +160,12 @@
                     android:text="Mom"
                     android:textSize="16sp"/>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GA Front Lines"
+                    android:textSize="16sp"/>
+
             </LinearLayout>
 
             <LinearLayout
@@ -279,6 +285,12 @@
                     android:text="Mike"
                     android:textSize="16sp"/>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Elena"
+                    android:textSize="16sp"/>
+
 
             </LinearLayout>
         </LinearLayout>
@@ -291,6 +303,15 @@
             android:paddingBottom="16dp"
             android:paddingTop="16dp"
             android:text="@string/creators"
+            android:textSize="24sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:gravity="center"
+            android:paddingBottom="16dp"
+            android:text="Data provided by Yelp and Nasa. #ChewsyInSpace"
             android:textSize="24sp"/>
 
         <ImageView
