@@ -35,14 +35,17 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_detail"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".NoInternetActivity">
+        <activity android:name=".NoInternetActivity"
+                  android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
 
         <service
             android:name=".RecommendJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
 
-        <activity android:name=".EasterEggActivity">
+        <activity android:name=".EasterEggActivity"
+                  android:theme="@style/AppTheme.NoActionBar">
+
         </activity>
     </application>
 
