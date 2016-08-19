@@ -1,14 +1,18 @@
 package com.joeymejias.chewsit.main_pager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.joeymejias.chewsit.EasterEggActivity;
 import com.joeymejias.chewsit.R;
 import com.joeymejias.chewsit.YelpHelper;
 
@@ -19,6 +23,7 @@ public class SettingsFragment extends Fragment {
 
     private SeekBar mDistanceSeekBar;
     private TextView mRadiusChoice;
+    private ImageView mEasterEgg;
 
     private double mDistanceChosen;
 
@@ -27,6 +32,7 @@ public class SettingsFragment extends Fragment {
         View viewRoot = inflater.inflate(R.layout.fragment_main_settings, container, false);
         mDistanceSeekBar = (SeekBar) viewRoot.findViewById(R.id.distance_seekbar);
         mRadiusChoice = (TextView) viewRoot.findViewById(R.id.settings_radius);
+        mEasterEgg = (ImageView) viewRoot.findViewById(R.id.easter_egg);
         return viewRoot;
     }
 
@@ -34,7 +40,8 @@ public class SettingsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mDistanceSeekBar.setProgress((int) ((YelpHelper.getInstance().getRadius() - 0.25) * 4));
-        mRadiusChoice.setText("searching within " + YelpHelper.getInstance().getRadius() + " miles");
+        mRadiusChoice.setText("Searching within " + YelpHelper.getInstance().getRadius() + " miles");
+        mRadiusChoice.setTextSize(20);
         mDistanceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -48,6 +55,13 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 YelpHelper.getInstance().setRadius(mDistanceChosen);
+            }
+        });
+        mEasterEgg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), EasterEggActivity.class);
+                startActivity(intent);
             }
         });
     }

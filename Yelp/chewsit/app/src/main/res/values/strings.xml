@@ -20,4 +20,7 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="text_no_internet">Houston, we have a problem!</string>
     <string name="onboard_intro">Hi! My name is Chewser. I\'m a food monster and I\'m here to help you use chewsit for the first time.</string>
+    <string name="thanks">Whoa&#8230; You found me in my super secret snack spot! Mmmmmmmmmmm, I love eating with friends! Well&#8230; Since you\'re here scroll down more! I might as well share with you the list of people we\'d like to thank. If you see any of them tell them Chewsy says \"Hai!\"</string>
+    <string name="friends">Huge thanks to\&#8230;</string>
+    <string name="creators">chewsit and Chewsy were created by Jordan Goldberg, David Stone, and Joey Mejias. We greatly appreciate the guidance and expertise of Drew Mahrt, Alan Caceres, Charlie Drews, and Chris Shum. Each of them is our Obi Wan.</string>
 </resources>
