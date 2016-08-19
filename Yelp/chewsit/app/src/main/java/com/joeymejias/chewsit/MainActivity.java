@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity
 
     private void showNetworkNotAvailableNotification() {
         NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
-        bigPictureStyle.bigPicture(BitmapFactory.decodeResource(getResources(), R.drawable.no_network)).build();
+        bigPictureStyle.bigPicture(BitmapFactory.decodeResource(getResources(), R.drawable.chewsy)).build();
         Intent intent = new Intent(this, NoInternetActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
