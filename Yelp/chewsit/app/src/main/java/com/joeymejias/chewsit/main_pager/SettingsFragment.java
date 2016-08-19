@@ -46,7 +46,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 mDistanceChosen = (((long) i)/4.0) + 0.25;
-                mRadiusChoice.setText("searching within " + mDistanceChosen + " miles");
+                mRadiusChoice.setText("Searching within " + mDistanceChosen + " miles");
             }
 
             @Override
