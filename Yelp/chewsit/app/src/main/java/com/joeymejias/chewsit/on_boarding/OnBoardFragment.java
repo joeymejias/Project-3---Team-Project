@@ -23,7 +23,7 @@ public class OnBoardFragment extends Fragment {
     private static final String IMAGE_URL_1 =
             "https://lh3.googleusercontent.com/OA25IMhMzp0N4l8VLR6myCpBWIBsEJFZ2qkmWlYDWHrDs6VnxTxbct63ro4YGSBexQQ_B0jVYBfJjg=w720-h1280-no";
     private static final String IMAGE_URL_2 =
-            "https://lh3.googleusercontent.com/zPC6O3ilNq2Cahx59K1nmZ4EQ4jWtRjXz4o3Iwe_sxbvZDUyMgO_HbpyUkzLDcaBjQsvlN3884cDWg=w720-h1280-no";
+            "https://lh3.googleusercontent.com/nHZFRlCAVBQ-6sjvb6-WXKTOcQNT2-Y98zv_YDgCvoujk0C-UVkEIhQWIrMXfmHzkvRnNQQCmcmK6g=w720-h1280-no";
     private static final String IMAGE_URL_3 =
             "https://lh3.googleusercontent.com/KOO_Ks96OezYVuJyPaEOedCHUpNNxUJqNcqMP9LSX5JHcgVp3_QAHFfvHWArL31_AGo0QLYozUS8DQ=w720-h1280-no";
 
